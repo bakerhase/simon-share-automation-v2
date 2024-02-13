@@ -1,0 +1,4 @@
+term,Spring 2024
+
+GBA111.11,sectionID,john.doe@simon.rochester.edu
+MKT123.21,sectionID,who.cares@simon.rochester.edu
