@@ -212,7 +212,7 @@ def assign_to_owner(uname, pwrd, urllist):
                 if total_coursename.upper() == lineList[0]:
                     prof_email = lineList[2]
             config_file.close()
-
+            
             # Clicks to Permissions subtab
 
             #As far as I can tell XPATH is the only way to uniquely identify this element. That sucks. Too bad.
@@ -229,9 +229,9 @@ def assign_to_owner(uname, pwrd, urllist):
             elif "zoom" in default_assignment:
                 zoom_flag = True
 
-            if (prof_email != '') and zoom_flag:
+            if prof_email != '':
                 # Click change owner button
-                change_owner_button = driver.find_element(By.ID, 'change-owner-open')
+                change_owner_button = driver.find_element(By.XPATH, """//*[@id="change-owner-open"]""")#By.ID, 'change-owner-open')
                 change_owner_button.click()
 
                 # Access the dropdown
@@ -257,17 +257,20 @@ def assign_to_owner(uname, pwrd, urllist):
             print("Issue with URL "+URL)
 
 def publish_classes(urlShellString):
-    #Just runs the command specified in the shell. Pretty based solution to my problem of integrating java
+    #Just runs the command specified in the shell.
     subprocess.run("java mediaPublisher "+urlShellString, shell=True)
+    #print("publishing")
 
 
 # Performs the functions of the 'submit' button. Deletes values in entries of the GUI
 # Calls script passing in the user-entered URAD credentials and URL list
 def submitHandler():
     upVal = updateValue.get()
-    asVal = assignValue.get()
-    uname = uname_entry.get()
-    pwrd = pwrd_entry.get()
+    termVal = term_entry.get()
+    #These values aren't used or needed currently
+    #asVal = assignValue.get()
+    #uname = uname_entry.get()
+    #pwrd = pwrd_entry.get()
 
     urlEntry = URL_box.get("1.0", tk.END)
     print(urlEntry)
@@ -301,17 +304,18 @@ def submitHandler():
     print("Publishing IDs "+shellString)
 
     if upVal==1:
-        update_term_data("Spring 2024") #THIS SHOULD NOT BE HARD CODED, CHANGE THIS ASAP
+        update_term_data(termVal)
 
-    if asVal==1:
-        assign_to_owner(uname, pwrd, urllist)
+    #if asVal==1:
+    #    assign_to_owner(uname, pwrd, urllist)
 
 
     publish_classes(shellString)
 
-    uname_entry.delete(0, tk.END)
-    pwrd_entry.delete(0,tk.END)
+    #uname_entry.delete(0, tk.END)
+    #pwrd_entry.delete(0,tk.END)
     advisory_label["text"]='Done!'
+    term_entry.delete(0,tk.END)
 
 
 # Generates GUI window
@@ -319,16 +323,18 @@ window = tk.Tk()
 window.title("Zoom Recording Share Automation")
 #window.withdraw() #hides main window until Read me is addressed
 
+
+### Username and Password aren't needed right now
 # Labels and creates username entry field
-uname_label = tk.Label(text='AD User')
-uname_entry = tk.Entry(fg='black', bg='white', width = 50)
+#uname_label = tk.Label(text='AD User')
+#uname_entry = tk.Entry(fg='black', bg='white', width = 50)
 
 # Labels and creates password entry field
-pwrd_label = tk.Label(text='AD Password')
-pwrd_entry = tk.Entry(fg='black', bg='white', show = '*', width = 50)
+#pwrd_label = tk.Label(text='AD Password')
+#pwrd_entry = tk.Entry(fg='black', bg='white', show = '*', width = 50)
 
 # Labels and creates URL entry text box
-URL_label = tk.Label(text = 'Start each class recording URL on a new line')
+URL_label = tk.Label(text = 'Start each class recording URL on a new line:')
 URL_box = tk.Text() #Play with text wrapping. Is it better for no wrapping? Will that be confusing? Will having text wrapping be confusing?
 
 #Labels and creates submit button
@@ -336,15 +342,18 @@ submit = tk.Button(window, text='Submit for Upload Process', command=submitHandl
 
 
 #Assign to professor checkmark
+#Function Currently Not Working, has been removed
 
-assignValue = tk.IntVar()
-assign_check = tk.Checkbutton(window, text="Also assign to professor?", variable=assignValue, onvalue=1, offvalue=0)
+#assignValue = tk.IntVar()
+#assign_check = tk.Checkbutton(window, text="Also assign to professor?", variable=assignValue, onvalue=1, offvalue=0)
 
 # Update term data checkmark
 
 updateValue = tk.IntVar()
 update_check = tk.Checkbutton(window, text="Also update term?", variable=updateValue, onvalue=1, offvalue=0)
-
+term_label = tk.Label(text='Term name (if updating term):')
+term_entry = tk.Entry(fg='black', bg='white', width = 50)
+spacer_label = tk.Label(text=" ")
 
 
 
@@ -353,16 +362,19 @@ advisory_label = tk.Label(text = ' ')
 
 
 # Adds GUI elements to the window
-uname_label.pack()
-uname_entry.pack()
-pwrd_label.pack()
-pwrd_entry.pack()
+#uname_label.pack()
+#uname_entry.pack()
+#pwrd_label.pack()
+#pwrd_entry.pack()
 URL_label.pack()
 URL_box.pack()
 submit.pack()
 advisory_label.pack()
 update_check.pack()
-assign_check.pack()
+term_label.pack()
+term_entry.pack()
+spacer_label.pack()
+#assign_check.pack()
 config_file = open('config.txt', 'r')
 termline = config_file.readline()
 config_file.close()
