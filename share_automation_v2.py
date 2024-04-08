@@ -1,12 +1,12 @@
 # All required packages come with python by default (tkinter) or from selenium
-from selenium import webdriver
-from selenium.webdriver.firefox.service import Service as FirefoxService
-import webdriver_manager
-from webdriver_manager.firefox import GeckoDriverManager
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.select import Select
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.firefox.options import Options
+#from selenium import webdriver
+#from selenium.webdriver.firefox.service import Service as FirefoxService
+#import webdriver_manager
+#from webdriver_manager.firefox import GeckoDriverManager
+#from selenium.webdriver.common.by import By
+#from selenium.webdriver.support.select import Select
+#from selenium.webdriver.common.keys import Keys
+#from selenium.webdriver.firefox.options import Options
 import tkinter as tk
 import tkinter.messagebox
 import subprocess
@@ -14,10 +14,10 @@ import csv
 
 #checks if a given email is an admin email from a list of emails (ultimately should be modified to be from a text file containing amin emails)
 def isAdminEmail(email):
-    adminEmails = ["list",
-                   "of",
-                   "admin",
-                   "emails"]
+    adminEmails = ["kpeck7@UR.Rochester.edu",
+                   "Jessica.Mcdermott@simon.Rochester.edu",
+                   "abarkhim@simon.rochester.edu",
+                   "bkinsman@simon.rochester.edu"]
     isAdmin = False
     for adminEmail in adminEmails:
         if email == adminEmail:
@@ -113,6 +113,8 @@ def titleparse(page_title):
     course_title = reverse_title[::-1]
     return course_title
 
+# Depricated
+"""
 # Main function which opens and fills information for classes in Google Chrome
 # Passed in a URAD username and password, as well as a list of URLs for the desired classes
 def assign_to_owner(uname, pwrd, urllist):
@@ -212,7 +214,7 @@ def assign_to_owner(uname, pwrd, urllist):
                 if total_coursename.upper() == lineList[0]:
                     prof_email = lineList[2]
             config_file.close()
-            
+
             # Clicks to Permissions subtab
 
             #As far as I can tell XPATH is the only way to uniquely identify this element. That sucks. Too bad.
@@ -231,7 +233,7 @@ def assign_to_owner(uname, pwrd, urllist):
 
             if prof_email != '':
                 # Click change owner button
-                change_owner_button = driver.find_element(By.XPATH, """//*[@id="change-owner-open"]""")#By.ID, 'change-owner-open')
+                change_owner_button = driver.find_element(By.XPATH, ""//*[@id="change-owner-open"]"")#By.ID, 'change-owner-open')
                 change_owner_button.click()
 
                 # Access the dropdown
@@ -255,6 +257,7 @@ def assign_to_owner(uname, pwrd, urllist):
                 done_button.click()
         except:
             print("Issue with URL "+URL)
+"""
 
 def publish_classes(urlShellString):
     #Just runs the command specified in the shell.
@@ -272,43 +275,26 @@ def submitHandler():
     #uname = uname_entry.get()
     #pwrd = pwrd_entry.get()
 
+    if upVal==1:
+        update_term_data(termVal)
+
     urlEntry = URL_box.get("1.0", tk.END)
     print(urlEntry)
+
     while urlEntry[-1]=="\n":
         urlEntry = urlEntry[0:len(urlEntry)-1]
 
     print(urlEntry)
     urllist = urlEntry.split("\n")
-    """
-    # Formats each URL with a space in between them to pass to a shell command later
-    urlString = urlEntry.replace("\n"," ")
-
-    urllist = []
-    entry = ''
-    stopidx = len(urlString)-1
-    idx = 0
-    for elt in urlString:
-        if elt != ' ':
-            entry+=elt
-            if idx+1 == stopidx:
-                urllist.append(entry)
-        elif elt ==' ' and idx != stopidx:
-            urllist.append(entry)
-            entry=''
-        elif elt == ' ' and idx ==stopidx:
-            continue
-
-        idx+=1
-    """
+    
     shellString = mediaIdFromURLs(urllist)
+    
     print("Publishing IDs "+shellString)
 
-    if upVal==1:
-        update_term_data(termVal)
+
 
     #if asVal==1:
     #    assign_to_owner(uname, pwrd, urllist)
-
 
     publish_classes(shellString)
 
