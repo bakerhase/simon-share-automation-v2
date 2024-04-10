@@ -1,3 +1,4 @@
+//import com.echo360.sdk;
 import com.echo360.sdk.Echo360Api;
 import com.echo360.sdk.model.objects.MediaAccessLink;
 import com.echo360.sdk.model.objects.MediaShare;
@@ -8,14 +9,22 @@ import com.echo360.sdk.util.Echo360Exception;
 import com.echo360.sdk.services.LessonService;
 import com.echo360.sdk.model.objects.Lesson;
 import com.echo360.sdk.model.requests.AuthRequest;
+import com.echo360.sdk.model.objects.Timing;
 import java.io.*;
-
+//import java.io.BufferedReader;
+//import com.echo360.sdk.services.SectionService;
+//import com.echo360.sdk.model.objects.Section;
 
 public class mediaPublisher{
     private static String baseUrl = "https://echo360.org";
-    private static String clientID = "YOURCLIENTIDHERE"
-    private static String clientSecret = "YOURCLIENTSECRETHERE";
+    private static String clientID = "YOURCLIENTIDHERE";
+    private static String clientSecret = "YOURSECRETIDHERE";
+
+    //private static int limit = 5;
     private static EchoLogger logger;
+
+    //private static String LessonId = "[ID of the Lesson containing Media]";
+    //private static String mediaId = "d7eb9080-e157-48a7-b609-c4e59a391b57";
 
 
     //Takes the "mediaName" field from the media on the server and returns the section name in a SimonIT-familiar format (e.g. MKT111.12)
@@ -63,6 +72,46 @@ public class mediaPublisher{
         return sectionId;
     }
 
+    //Takes the "createdAt" string from the media on the server and returns a time of a different format
+    //to be used for the end time of the recording in the lesson timing object. No it doesn't matter that the class
+    //is not likely to be 1 hour long
+    static String makeStartTime(String createdAt){
+        String open = createdAt.substring(0,11);
+        String close = createdAt.substring(13, 19) + ".000";
+        String hour = createdAt.substring(11,13);
+        
+        String startString = open+hour+close;
+        System.out.println(startString);
+        return startString;
+    }
+
+
+
+    //Takes the "createdAt" string from the media on the server and returns a time of a different format, 1 hour later
+    //to be used for the end time of the recording in the lesson timing object. No it doesn't matter that the class
+    //is not likely to be 1 hour long
+    static String makeEndTime(String createdAt){
+        String open = createdAt.substring(0,11);
+        String close = createdAt.substring(13, 19) + ".000";
+        Integer hour = Integer.parseInt(createdAt.substring(11,13));
+        Integer newHour;
+        if(hour==24){
+            newHour = 0;
+        }else{
+            newHour = hour + 1;
+        }
+        String newHourString;
+        if(newHour<10){
+            newHourString = "0"+ Integer.toString(newHour);
+        }else{
+            newHourString = Integer.toString(newHour);
+        }
+        String endString = open+newHourString+close;
+        System.out.println(endString);
+        return endString;
+    }
+
+
     //Takes the "createdAt" string from the media on the server and returns a date in the format we use (e.g. 01.01.1999)
     //createdAt takes the form "YYYY-MM-DD"+"THH:MM:SSZ"
     //CURRENTLY UNTESTED (should work)
@@ -76,6 +125,13 @@ public class mediaPublisher{
 
     // args is a list of mediaIds to do stuff to. These are parsed from the URLs of the media and passed to this script by the python code.
     public static void main(String[] args) {
+        /*
+        String sectionName = titleParse("Simon OMG402.31A's Personal Meeting Room");
+        String sectionId = getSectionId(sectionName);
+        System.out.println(sectionName);
+        System.out.println(sectionId);
+        System.out.println(dateParse("YYYY-MM-DD"+"THH:MM:SSZ"));
+        */
         //Sets up a logger to log responses from the server
         logger = new EchoLogger();
 
@@ -121,7 +177,7 @@ public class mediaPublisher{
                 Lesson serverLesson = lessonService.create(lesson);
 
                 //Get information for various fields of the lesson
-                String dateString = dateParse(media.createdAt);
+                String dateString = dateParse(media.createdAt);//FUNCTION INCOMPLETE
                 String captureId = media.captureOccurrenceId;
                 String lessonName = "Zoom."+sectionName+"-"+dateString;
 
@@ -129,6 +185,12 @@ public class mediaPublisher{
                 serverLesson.captureOccurrenceId = captureId;
                 serverLesson.name = lessonName;
                 serverLesson.timeZone = "US/Eastern";
+
+                String startTime = makeStartTime(media.createdAt);
+                String endTime = makeEndTime(media.createdAt);
+                Timing timing = new Timing(startTime, endTime);
+
+                serverLesson.timing = timing;
 
                 //update the lesson on the server
                 Lesson updatedLesson = lessonService.update(serverLesson);
@@ -157,6 +219,8 @@ public class mediaPublisher{
                 default:
                     logger.logString("[" + ex.getErrorType() + "] Error Message: " + ex.getMessage());
                 }
+            }catch (java.text.ParseException e){
+                System.out.println("date format issue");
             }
 
             }
