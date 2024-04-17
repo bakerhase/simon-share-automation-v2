@@ -28,6 +28,8 @@ Note that the directory the program runs from is not the same as the directory w
 
 ## Implicit Assumptions
 This code assumes that the title of the media being published only contains one apostrophe and that the apostrophe appears immediately after the course section (i.e. the title contains "CIS999.99'"). The uploading process will not work properly if this is not the case.
+
 As of right now the uploading won't work properly if a media's start time is 23:xx, I think. This shouldn't ever come up, as no class starts at 11pm, but this is physically possible to come up. (the issue is in the function in mediaPublisher which sets the end time for the timing of the lesson. I mistakenly made a special case for times starting with 24:xx, when the special case should be for 23:xx. The way I handled the special case also isn't a proper handling)
+
 There will also be an issue if the course section in the media title isn't the same as the section in Echo (capitalization does not matter). For instance "FIN999.lab2's Zoom Room" will not be uploaded properly if it is "FIN999.lab 2" in Echo.
 
